@@ -20,90 +20,140 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppDimensions.spacing24),
+      padding: const EdgeInsets.all(AppDimensions.spacing32),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: AppColors.primaryGradient,
+        gradient: LinearGradient(
+          colors: [
+            AppColors.calmBlue,
+            AppColors.calmBlue.withBlue(255),
+            AppColors.softGreen,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(AppDimensions.radiusLarge),
-          bottomRight: Radius.circular(AppDimensions.radiusLarge),
+          bottomLeft: Radius.circular(AppDimensions.radiusXLarge + 8),
+          bottomRight: Radius.circular(AppDimensions.radiusXLarge + 8),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.calmBlue.withOpacity(0.3),
+            blurRadius: 24,
+            spreadRadius: 0,
+            offset: const Offset(0, 12),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          // Profile Photo
+          // Enhanced Profile Photo with gradient border
           Container(
-            width: 100,
-            height: 100,
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.white,
-              border: Border.all(
-                color: AppColors.white,
-                width: 4,
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.white.withOpacity(0.8),
+                  AppColors.white.withOpacity(0.4),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: photoUrl != null && photoUrl!.isNotEmpty
-                ? ClipOval(
-                    child: Image.network(
-                      photoUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return _buildDefaultAvatar();
-                      },
-                    ),
-                  )
-                : _buildDefaultAvatar(),
+            child: Container(
+              width: 110,
+              height: 110,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.white,
+              ),
+              child: photoUrl != null && photoUrl!.isNotEmpty
+                  ? ClipOval(
+                      child: Image.network(
+                        photoUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildDefaultAvatar();
+                        },
+                      ),
+                    )
+                  : _buildDefaultAvatar(),
+            ),
           ),
 
-          const SizedBox(height: AppDimensions.spacing16),
+          const SizedBox(height: AppDimensions.spacing20),
 
-          // User Name
+          // User Name with shadow
           Text(
             name,
             style: AppTypography.headingLarge.copyWith(
               color: AppColors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 28,
+              shadows: [
+                Shadow(
+                  color: Colors.black.withOpacity(0.2),
+                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
             ),
             textAlign: TextAlign.center,
           ),
 
-          const SizedBox(height: AppDimensions.spacing8),
+          const SizedBox(height: AppDimensions.spacing16),
 
-          // Total Points
+          // Enhanced Total Points badge
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: AppDimensions.spacing16,
-              vertical: AppDimensions.spacing8,
+              horizontal: AppDimensions.spacing24,
+              vertical: AppDimensions.spacing12,
             ),
             decoration: BoxDecoration(
-              color: AppColors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+              color: AppColors.white.withOpacity(0.25),
+              borderRadius: BorderRadius.circular(AppDimensions.radiusCircular),
+              border: Border.all(
+                color: AppColors.white.withOpacity(0.3),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.star,
-                  color: AppColors.white,
-                  size: 20,
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.star_rounded,
+                    color: AppColors.white,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(width: AppDimensions.spacing8),
+                const SizedBox(width: AppDimensions.spacing12),
                 Text(
                   '$totalPoints Points',
                   style: AppTypography.bodyLarge.copyWith(
                     color: AppColors.white,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ],

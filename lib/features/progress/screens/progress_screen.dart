@@ -58,7 +58,7 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,

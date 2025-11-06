@@ -2,6 +2,7 @@
 /// 
 /// This file demonstrates how to use the Hive-based local storage
 /// for caching activities, managing offline queue, and syncing data.
+library;
 
 import '../models/models.dart';
 import '../repositories/local_storage_repository.dart';

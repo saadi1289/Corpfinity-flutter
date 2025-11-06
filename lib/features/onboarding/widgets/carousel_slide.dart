@@ -10,6 +10,7 @@ class CarouselSlide extends StatelessWidget {
   final String description;
   final IconData icon;
   final Color iconColor;
+  final bool isActive;
 
   const CarouselSlide({
     super.key,
@@ -17,6 +18,7 @@ class CarouselSlide extends StatelessWidget {
     required this.description,
     required this.icon,
     this.iconColor = AppColors.calmBlue,
+    this.isActive = true,
   });
 
   @override
@@ -29,22 +31,42 @@ class CarouselSlide extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Illustration placeholder (using icon for now)
-          _buildIllustration(),
+          AnimatedScale(
+            scale: isActive ? 1.0 : 0.96,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            child: AnimatedOpacity(
+              opacity: isActive ? 1.0 : 0.85,
+              duration: const Duration(milliseconds: 300),
+              child: _buildIllustration(),
+            ),
+          ),
           const SizedBox(height: AppDimensions.spacing48),
           // Header text
-          Text(
-            title,
-            style: AppTypography.displayMedium,
-            textAlign: TextAlign.center,
+          AnimatedSlide(
+            offset: isActive ? Offset.zero : const Offset(0, 0.05),
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            child: Text(
+              title,
+              style: AppTypography.displayMedium.copyWith(
+                color: AppColors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
           const SizedBox(height: AppDimensions.spacing16),
           // Body text
-          Text(
-            description,
-            style: AppTypography.bodyLarge.copyWith(
-              color: AppColors.mediumGray,
+          AnimatedOpacity(
+            opacity: isActive ? 1.0 : 0.9,
+            duration: const Duration(milliseconds: 300),
+            child: Text(
+              description,
+              style: AppTypography.bodyLarge.copyWith(
+                color: AppColors.white.withOpacity(0.9),
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -53,17 +75,30 @@ class CarouselSlide extends StatelessWidget {
 
   Widget _buildIllustration() {
     return Container(
-      width: 200,
-      height: 200,
+      width: 220,
+      height: 220,
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.1),
         shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            iconColor.withOpacity(0.25),
+            iconColor.withOpacity(0.05),
+          ],
+          radius: 0.85,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: iconColor.withOpacity(0.25),
+            blurRadius: 24,
+            spreadRadius: 4,
+          ),
+        ],
       ),
       child: Center(
         child: Icon(
           icon,
-          size: 100,
-          color: iconColor,
+          size: 110,
+          color: AppColors.white,
         ),
       ),
     );

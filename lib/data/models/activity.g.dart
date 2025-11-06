@@ -3,7 +3,7 @@
 part of 'activity.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class ActivityAdapter extends TypeAdapter<Activity> {

@@ -21,6 +21,16 @@ class AppColors {
   static const Color energyMedium = warmOrange;
   static const Color energyHigh = softGreen;
 
+  // Location Context Colors
+  static const Color professionalBlue = calmBlue;
+  static const Color energeticRed = gentleRed;
+  static const Color natureGreen = softGreen;
+
+  // Wellness Goal Colors
+  static const Color softPurple = Color(0xFF9B59B6);
+  static const Color freshGreen = Color(0xFF27AE60);
+  static const Color coralPink = Color(0xFFFF6B9D);
+
   // Difficulty Colors
   static const Color difficultyLow = softGreen;
   static const Color difficultyMedium = warmOrange;
@@ -32,7 +42,11 @@ class AppColors {
   static const Color error = gentleRed;
   static const Color info = calmBlue;
 
-  // Gradient Colors
+  // Gradient Colors (for splash screen only)
+  static const List<Color> splashGradient = [
+    Color(0xFF667eea), // Soft purple
+    Color(0xFF764ba2), // Deep purple
+  ];
   static const List<Color> primaryGradient = [calmBlue, softGreen];
   static const List<Color> successGradient = [softGreen, white];
 

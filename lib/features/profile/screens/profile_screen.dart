@@ -40,8 +40,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(
+          'Profile',
+          style: AppTypography.headingMedium.copyWith(
+            color: AppColors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.primaryGradient,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: Consumer<ProfileProvider>(
         builder: (context, profileProvider, child) {
@@ -63,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   totalPoints: user.totalPoints,
                 ),
 
-                const SizedBox(height: AppDimensions.spacing24),
+                const SizedBox(height: AppDimensions.spacing32),
 
                 // Notification Settings Section
                 SettingsSection(
@@ -104,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
 
-                const SizedBox(height: AppDimensions.spacing16),
+                const SizedBox(height: AppDimensions.spacing24),
 
                 // App Settings Section
                 SettingsSection(
@@ -127,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
 
-                const SizedBox(height: AppDimensions.spacing16),
+                const SizedBox(height: AppDimensions.spacing24),
 
                 // Privacy Settings Section
                 SettingsSection(
@@ -182,33 +198,63 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 const SizedBox(height: AppDimensions.spacing32),
 
-                // Logout Button
+                // Enhanced Logout Button
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDimensions.spacing24,
                   ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: profileProvider.isLoading
-                          ? null
-                          : () => _handleLogout(context, profileProvider),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: const BorderSide(
-                          color: AppColors.error,
-                          width: 1.5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.error.withOpacity(0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                      child: profileProvider.isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
+                      ],
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: AppDimensions.buttonHeightLarge,
+                      child: OutlinedButton(
+                        onPressed: profileProvider.isLoading
+                            ? null
+                            : () => _handleLogout(context, profileProvider),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                          backgroundColor: AppColors.white,
+                          side: BorderSide(
+                            color: AppColors.error.withOpacity(0.5),
+                            width: 2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppDimensions.radiusLarge),
+                          ),
+                        ),
+                        child: profileProvider.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.logout_rounded),
+                                  const SizedBox(width: AppDimensions.spacing8),
+                                  Text(
+                                    'Logout',
+                                    style: AppTypography.buttonLarge.copyWith(
+                                      color: AppColors.error,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            )
-                          : const Text('Logout'),
+                      ),
                     ),
                   ),
                 ),

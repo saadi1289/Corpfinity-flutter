@@ -9,6 +9,7 @@ import 'features/activities/providers/activity_provider.dart';
 import 'features/activities/providers/activity_guide_provider.dart';
 import 'features/progress/providers/progress_provider.dart';
 import 'features/profile/providers/profile_provider.dart';
+import 'features/challenges/providers/challenge_flow_provider.dart';
 
 /// Root application widget
 class CorpfinityApp extends StatelessWidget {
@@ -31,6 +32,7 @@ class CorpfinityApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ActivityProvider()),
         ChangeNotifierProvider(create: (_) => ActivityGuideProvider()),
         ChangeNotifierProvider(create: (_) => ProgressProvider()),
+        ChangeNotifierProvider(create: (_) => ChallengeFlowProvider()),
       ],
       child: MaterialApp.router(
         title: 'Corpfinity Wellness',

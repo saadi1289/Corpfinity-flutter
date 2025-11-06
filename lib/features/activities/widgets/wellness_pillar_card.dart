@@ -3,7 +3,6 @@ import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/typography.dart';
 import '../../../core/utils/animations.dart';
-import '../../../core/widgets/custom_card.dart';
 import '../../../data/models/wellness_pillar.dart';
 
 /// WellnessPillarCard displays a wellness pillar with icon, name, description,
@@ -11,11 +10,13 @@ import '../../../data/models/wellness_pillar.dart';
 class WellnessPillarCard extends StatefulWidget {
   final WellnessPillar pillar;
   final VoidCallback onTap;
+  final bool isSelected;
 
   const WellnessPillarCard({
     super.key,
     required this.pillar,
     required this.onTap,
+    this.isSelected = false,
   });
 
   @override
@@ -53,8 +54,29 @@ class _WellnessPillarCardState extends State<WellnessPillarCard>
     _controller.reverse();
   }
 
+  Color _getIconColor() {
+    switch (widget.pillar.id) {
+      case 'stress-reduction':
+        return AppColors.calmBlue;
+      case 'increased-energy':
+        return AppColors.warmOrange;
+      case 'better-sleep':
+        return AppColors.calmBlue;
+      case 'physical-fitness':
+        return AppColors.softGreen;
+      case 'healthy-eating':
+        return AppColors.softGreen;
+      case 'social-connection':
+        return AppColors.warmOrange;
+      default:
+        return AppColors.calmBlue;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final iconColor = _getIconColor();
+    
     return GestureDetector(
       onTapDown: _handleTapDown,
       onTapUp: _handleTapUp,
@@ -62,7 +84,32 @@ class _WellnessPillarCardState extends State<WellnessPillarCard>
       onTap: widget.onTap,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: CustomCard(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(AppDimensions.cardBorderRadius),
+            border: Border.all(
+              color: widget.isSelected ? iconColor : AppColors.neutralGray,
+              width: widget.isSelected ? 3 : 1,
+            ),
+            boxShadow: widget.isSelected
+              ? [
+                  BoxShadow(
+                    color: iconColor.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: AppDimensions.shadowBlurRadius,
+                    spreadRadius: AppDimensions.shadowSpreadRadius,
+                    offset: const Offset(0, AppDimensions.shadowOffsetY),
+                  ),
+                ],
+          ),
           padding: const EdgeInsets.all(AppDimensions.spacing16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,49 +152,39 @@ class _WellnessPillarCardState extends State<WellnessPillarCard>
   Widget _buildIcon() {
     // Map pillar IDs to icons
     IconData iconData;
-    Color iconColor;
 
     switch (widget.pillar.id) {
       case 'stress-reduction':
         iconData = Icons.spa_rounded;
-        iconColor = AppColors.calmBlue;
         break;
       case 'increased-energy':
         iconData = Icons.bolt_rounded;
-        iconColor = AppColors.warmOrange;
         break;
       case 'better-sleep':
         iconData = Icons.bedtime_rounded;
-        iconColor = AppColors.calmBlue;
         break;
       case 'physical-fitness':
         iconData = Icons.fitness_center_rounded;
-        iconColor = AppColors.softGreen;
         break;
       case 'healthy-eating':
         iconData = Icons.restaurant_rounded;
-        iconColor = AppColors.softGreen;
         break;
       case 'social-connection':
         iconData = Icons.people_rounded;
-        iconColor = AppColors.warmOrange;
         break;
       default:
         iconData = Icons.favorite_rounded;
-        iconColor = AppColors.calmBlue;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(AppDimensions.spacing8),
-      decoration: BoxDecoration(
-        color: iconColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(AppDimensions.radiusMedium),
-      ),
-      child: Icon(
-        iconData,
-        size: AppDimensions.iconSizeMedium,
-        color: iconColor,
-      ),
+    final iconColor = _getIconColor();
+    
+    // Use outline icon when unselected, filled icon when selected
+    return Icon(
+      iconData,
+      size: AppDimensions.iconSizeMedium,
+      color: widget.isSelected 
+        ? iconColor  // Filled with full color when selected
+        : iconColor.withValues(alpha: 0.7),  // Outline effect when unselected
     );
   }
 

@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/constants/dimensions.dart';
 import '../../../core/constants/typography.dart';
+import '../../../core/widgets/hero_card.dart';
+import '../../../core/widgets/supportive_section_card.dart';
+import '../../../core/widgets/create_challenge_card.dart';
 import '../providers/home_provider.dart';
-import '../widgets/energy_level_card.dart';
-import '../widgets/quick_stats_widget.dart';
 
 /// HomeScreen displays the main dashboard with energy level selection
 /// and quick stats for the user
@@ -28,18 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _handleEnergySelection(BuildContext context, EnergyLevel energy) {
-    final provider = context.read<HomeProvider>();
-    provider.selectEnergyLevel(energy);
-    
-    // Navigate to wellness pillar screen with energy level
-    context.push('/pillars?energy=${energy.name}');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.white,
       body: SafeArea(
         child: Consumer<HomeProvider>(
           builder: (context, provider, child) {
@@ -47,20 +40,19 @@ class _HomeScreenState extends State<HomeScreen> {
             
             return CustomScrollView(
               slivers: [
-                // App Bar with greeting
+                // Hero Card at top
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(AppDimensions.screenPaddingHorizontal),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: AppDimensions.spacing16),
-                        _buildGreeting(state.userName),
-                        const SizedBox(height: AppDimensions.spacing8),
-                        Text(
-                          'How are you feeling today?',
-                          style: AppTypography.bodyMedium.copyWith(
-                            color: AppColors.mediumGray,
+                        RepaintBoundary(
+                          child: HeroCard(
+                            userName: state.userName,
+                            profileImageUrl: state.profileImageUrl,
+                            progressValue: state.levelProgress,
+                            currentLevel: state.currentLevel,
                           ),
                         ),
                       ],
@@ -68,61 +60,73 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 
-                // Energy Level Cards
+                // Daily Progress Summary Section
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimensions.screenPaddingHorizontal,
-                      vertical: AppDimensions.spacing20,
+                      vertical: AppDimensions.spacing8,
                     ),
-                    child: Column(
-                      children: [
-                        EnergyLevelCard(
-                          energyLevel: EnergyLevel.low,
-                          onTap: () => _handleEnergySelection(context, EnergyLevel.low),
-                          isSelected: state.selectedEnergy == EnergyLevel.low,
-                        ),
-                        const SizedBox(height: AppDimensions.spacing16),
-                        EnergyLevelCard(
-                          energyLevel: EnergyLevel.medium,
-                          onTap: () => _handleEnergySelection(context, EnergyLevel.medium),
-                          isSelected: state.selectedEnergy == EnergyLevel.medium,
-                        ),
-                        const SizedBox(height: AppDimensions.spacing16),
-                        EnergyLevelCard(
-                          energyLevel: EnergyLevel.high,
-                          onTap: () => _handleEnergySelection(context, EnergyLevel.high),
-                          isSelected: state.selectedEnergy == EnergyLevel.high,
-                        ),
-                      ],
+                    child: RepaintBoundary(
+                      child: SupportiveSectionCard(
+                        title: 'Daily Progress Summary',
+                        content: '${state.totalActivities} activities completed today',
+                        icon: Icons.check_circle_outline,
+                        accentColor: AppColors.calmBlue,
+                      ),
                     ),
                   ),
                 ),
                 
-                // Quick Stats Section
+                // Tip of the Day Section
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDimensions.screenPaddingHorizontal,
+                      vertical: AppDimensions.spacing8,
                     ),
-                    child: state.isLoading
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(AppDimensions.spacing24),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : QuickStatsWidget(
-                            currentStreak: state.currentStreak,
-                            weeklyProgress: state.weeklyProgress,
-                            totalActivities: state.totalActivities,
-                          ),
+                    child: RepaintBoundary(
+                      child: SupportiveSectionCard(
+                        title: 'Tip of the Day',
+                        content: _getTipOfTheDay(),
+                        icon: Icons.lightbulb_outline,
+                        accentColor: AppColors.warmOrange,
+                      ),
+                    ),
                   ),
                 ),
                 
-                // Bottom spacing
+                // Current Streak Section
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.screenPaddingHorizontal,
+                      vertical: AppDimensions.spacing8,
+                    ),
+                    child: RepaintBoundary(
+                      child: SupportiveSectionCard(
+                        title: 'Current Streak',
+                        content: '${state.currentStreak} days in a row! Keep it up!',
+                        icon: Icons.local_fire_department,
+                        accentColor: AppColors.energyHigh,
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Create Challenge Card
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppDimensions.screenPaddingHorizontal),
+                    child: CreateChallengeCard(
+                      onTap: () => context.push('/challenge/create'),
+                    ),
+                  ),
+                ),
+                
+                // Bottom spacing for navigation bar
                 const SliverToBoxAdapter(
-                  child: SizedBox(height: AppDimensions.spacing32),
+                  child: SizedBox(height: AppDimensions.spacing16),
                 ),
               ],
             );
@@ -135,33 +139,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGreeting(String userName) {
-    final hour = DateTime.now().hour;
-    String greeting;
+  String _getTipOfTheDay() {
+    // Rotate through tips based on day of year
+    final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays;
+    final tips = [
+      'Take a 5-minute walk break every hour to boost energy',
+      'Stay hydrated - aim for 8 glasses of water today',
+      'Practice deep breathing for 2 minutes to reduce stress',
+      'Stretch your body for 5 minutes to improve flexibility',
+      'Take a moment to appreciate something positive today',
+      'Get some sunlight exposure to boost your mood',
+      'Try a new healthy snack today',
+      'Connect with a colleague or friend for social wellness',
+      'Take short breaks to rest your eyes from screens',
+      'Practice gratitude by writing down three things you\'re thankful for',
+    ];
     
-    if (hour < 12) {
-      greeting = 'Good morning';
-    } else if (hour < 17) {
-      greeting = 'Good afternoon';
-    } else {
-      greeting = 'Good evening';
-    }
-    
-    return RichText(
-      text: TextSpan(
-        style: AppTypography.displayMedium,
-        children: [
-          TextSpan(text: '$greeting, '),
-          TextSpan(
-            text: userName,
-            style: AppTypography.displayMedium.copyWith(
-              color: AppColors.calmBlue,
-            ),
-          ),
-          const TextSpan(text: '!'),
-        ],
-      ),
-    );
+    return tips[dayOfYear % tips.length];
   }
 
   Widget _buildBottomNavigationBar(BuildContext context) {

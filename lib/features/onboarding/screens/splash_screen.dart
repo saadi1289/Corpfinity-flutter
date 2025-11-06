@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:corpfinity_employee_app/core/constants/colors.dart';
 import 'package:corpfinity_employee_app/core/constants/typography.dart';
+import 'package:corpfinity_employee_app/features/auth/providers/auth_provider.dart';
 
 /// SplashScreen displays the app logo with fade-in animation
-/// and automatically transitions to the welcome carousel after 2 seconds.
+/// and automatically transitions to login or home after 2 seconds.
 /// 
 /// Features:
 /// - Full-screen gradient background (Calm Blue → Soft Green)
 /// - Centered logo with fade-in animation (0 → 100% opacity, 800ms)
 /// - Tagline "Wellness in 1–5 minutes"
-/// - Auto-transition after 2 seconds
+/// - Auto-transition after 2 seconds based on authentication status
+/// - If authenticated → navigate to /home
+/// - If not authenticated → navigate to /auth/signin
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -44,10 +48,19 @@ class _SplashScreenState extends State<SplashScreen>
     // Start the fade-in animation
     _animationController.forward();
 
-    // Auto-transition to welcome carousel after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
+    // Auto-transition after 2 seconds based on authentication status
+    Future.delayed(const Duration(seconds: 2), () async {
       if (mounted) {
-        context.go('/welcome');
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        final isAuthenticated = await authProvider.checkAuthStatus();
+        
+        if (mounted) {
+          if (isAuthenticated) {
+            context.go('/home');
+          } else {
+            context.go('/auth/signin');
+          }
+        }
       }
     });
   }
@@ -64,9 +77,9 @@ class _SplashScreenState extends State<SplashScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: AppColors.primaryGradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: AppColors.splashGradient,
           ),
         ),
         child: Center(

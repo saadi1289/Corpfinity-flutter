@@ -3,10 +3,11 @@
 part of 'notification_preferences.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
-class NotificationPreferencesAdapter extends TypeAdapter<NotificationPreferences> {
+class NotificationPreferencesAdapter
+    extends TypeAdapter<NotificationPreferences> {
   @override
   final int typeId = 1;
 

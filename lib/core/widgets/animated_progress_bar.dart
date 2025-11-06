@@ -79,29 +79,31 @@ class _AnimatedProgressBarState extends State<AnimatedProgressBar>
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {
-          return Container(
-            height: widget.height,
-            decoration: BoxDecoration(
-              color: widget.backgroundColor,
-              borderRadius: BorderRadius.circular(AppDimensions.progressBarBorderRadius),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(AppDimensions.progressBarBorderRadius),
-              child: Stack(
-                children: [
-                  FractionallySizedBox(
-                    widthFactor: _animation.value,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: widget.gradientColors,
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
+          return RepaintBoundary(
+            child: Container(
+              height: widget.height,
+              decoration: BoxDecoration(
+                color: widget.backgroundColor,
+                borderRadius: BorderRadius.circular(AppDimensions.progressBarBorderRadius),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppDimensions.progressBarBorderRadius),
+                child: Stack(
+                  children: [
+                    FractionallySizedBox(
+                      widthFactor: _animation.value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: widget.gradientColors,
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );

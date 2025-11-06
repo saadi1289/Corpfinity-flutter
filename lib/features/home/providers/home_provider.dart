@@ -39,6 +39,9 @@ class HomeState {
   final int totalActivities;
   final EnergyLevel? selectedEnergy;
   final bool isLoading;
+  final String? profileImageUrl;
+  final int currentLevel;
+  final double levelProgress;
 
   const HomeState({
     required this.userName,
@@ -47,6 +50,9 @@ class HomeState {
     required this.totalActivities,
     this.selectedEnergy,
     this.isLoading = false,
+    this.profileImageUrl,
+    this.currentLevel = 1,
+    this.levelProgress = 0.0,
   });
 
   HomeState copyWith({
@@ -56,6 +62,9 @@ class HomeState {
     int? totalActivities,
     EnergyLevel? selectedEnergy,
     bool? isLoading,
+    String? profileImageUrl,
+    int? currentLevel,
+    double? levelProgress,
   }) {
     return HomeState(
       userName: userName ?? this.userName,
@@ -64,6 +73,9 @@ class HomeState {
       totalActivities: totalActivities ?? this.totalActivities,
       selectedEnergy: selectedEnergy ?? this.selectedEnergy,
       isLoading: isLoading ?? this.isLoading,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      currentLevel: currentLevel ?? this.currentLevel,
+      levelProgress: levelProgress ?? this.levelProgress,
     );
   }
 
@@ -76,7 +88,10 @@ class HomeState {
         other.weeklyProgress == weeklyProgress &&
         other.totalActivities == totalActivities &&
         other.selectedEnergy == selectedEnergy &&
-        other.isLoading == isLoading;
+        other.isLoading == isLoading &&
+        other.profileImageUrl == profileImageUrl &&
+        other.currentLevel == currentLevel &&
+        other.levelProgress == levelProgress;
   }
 
   @override
@@ -88,6 +103,9 @@ class HomeState {
       totalActivities,
       selectedEnergy,
       isLoading,
+      profileImageUrl,
+      currentLevel,
+      levelProgress,
     );
   }
 }
@@ -108,6 +126,9 @@ class HomeProvider extends ChangeNotifier {
   double get weeklyProgress => _state.weeklyProgress;
   int get totalActivities => _state.totalActivities;
   String get userName => _state.userName;
+  String? get profileImageUrl => _state.profileImageUrl;
+  int get currentLevel => _state.currentLevel;
+  double get levelProgress => _state.levelProgress;
 
   /// Initialize home screen with user data and progress
   Future<void> initialize(User user, UserProgress progress) async {
@@ -133,6 +154,52 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fetch and update user profile data
+  Future<void> fetchUserProfile() async {
+    _state = _state.copyWith(isLoading: true);
+    notifyListeners();
+
+    try {
+      // TODO: Replace with actual repository call when backend is integrated
+      // For now, using mock data
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Mock profile data - will be replaced with actual API call
+      _state = _state.copyWith(
+        userName: 'John Doe',
+        profileImageUrl: null, // No profile image for now
+        currentLevel: 5,
+        totalActivities: 23,
+        isLoading: false,
+      );
+      
+      // Calculate level progress based on activities
+      final progress = calculateLevelProgress();
+      _state = _state.copyWith(levelProgress: progress);
+      
+      notifyListeners();
+    } catch (e) {
+      _state = _state.copyWith(isLoading: false);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  /// Calculate level progress based on total activities
+  /// Returns a value between 0.0 and 1.0
+  double calculateLevelProgress() {
+    // Each level requires 10 activities to complete
+    const activitiesPerLevel = 10;
+    
+    // Calculate activities in current level
+    final activitiesInCurrentLevel = _state.totalActivities % activitiesPerLevel;
+    
+    // Calculate progress as a percentage (0.0 to 1.0)
+    final progress = activitiesInCurrentLevel / activitiesPerLevel;
+    
+    return progress.clamp(0.0, 1.0);
+  }
+
   /// Fetch and update quick stats data
   Future<void> fetchQuickStats() async {
     _state = _state.copyWith(isLoading: true);
@@ -148,8 +215,15 @@ class HomeProvider extends ChangeNotifier {
         currentStreak: 5,
         weeklyProgress: 0.6,
         totalActivities: 23,
+        currentLevel: 5,
+        profileImageUrl: null,
         isLoading: false,
       );
+      
+      // Calculate level progress based on activities
+      final progress = calculateLevelProgress();
+      _state = _state.copyWith(levelProgress: progress);
+      
       notifyListeners();
     } catch (e) {
       _state = _state.copyWith(isLoading: false);

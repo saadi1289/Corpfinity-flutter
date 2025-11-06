@@ -3,7 +3,7 @@
 part of 'badge.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class BadgeAdapter extends TypeAdapter<Badge> {

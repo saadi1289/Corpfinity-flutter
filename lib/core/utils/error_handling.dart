@@ -6,6 +6,7 @@
 /// ```dart
 /// import 'package:corpfinity_employee_app/core/utils/error_handling.dart';
 /// ```
+library;
 
 // Exceptions
 export '../exceptions/app_exception.dart';

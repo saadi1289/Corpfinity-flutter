@@ -34,24 +34,39 @@ class SettingsSection extends StatelessWidget {
           ),
         ),
 
-        // Section Content Card
+        // Enhanced Section Content Card with gradient border
         Container(
           margin: const EdgeInsets.symmetric(
             horizontal: AppDimensions.spacing16,
           ),
           decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(AppDimensions.cardBorderRadius),
+            gradient: LinearGradient(
+              colors: [
+                AppColors.calmBlue.withOpacity(0.3),
+                AppColors.softGreen.withOpacity(0.2),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
+                color: AppColors.calmBlue.withOpacity(0.1),
+                blurRadius: 20,
+                spreadRadius: 0,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: Column(
-            children: _buildChildrenWithDividers(),
+          padding: const EdgeInsets.all(1.5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge - 1.5),
+            ),
+            child: Column(
+              children: _buildChildrenWithDividers(),
+            ),
           ),
         ),
       ],

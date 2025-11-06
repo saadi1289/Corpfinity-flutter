@@ -3,7 +3,7 @@
 part of 'user.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class UserAdapter extends TypeAdapter<User> {

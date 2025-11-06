@@ -76,65 +76,134 @@ class _WelcomeCarouselState extends State<WelcomeCarousel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.spacing16),
-                child: TextButton(
-                  onPressed: _onGetStarted,
-                  child: const Text('Skip'),
+      body: Stack(
+        children: [
+          // Gradient background using app colors
+          Positioned.fill(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 600),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: const [
+                    AppColors.calmBlue,
+                    AppColors.softGreen,
+                  ],
+                  stops: [
+                    0.1 + (_currentPage * 0.05),
+                    0.9 - (_currentPage * 0.05),
+                  ],
                 ),
               ),
             ),
-            // PageView with slides
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _slides.length,
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final slide = _slides[index];
-                  return CarouselSlide(
-                    title: slide['title'],
-                    description: slide['description'],
-                    icon: slide['icon'],
-                    iconColor: slide['color'],
-                  );
-                },
-              ),
-            ),
-            // Navigation dots
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: AppDimensions.spacing24,
-              ),
-              child: NavigationDots(
-                currentIndex: _currentPage,
-                totalDots: _slides.length,
-              ),
-            ),
-            // Get Started button
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppDimensions.spacing32,
-                vertical: AppDimensions.spacing24,
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: CustomButton(
-                  text: 'Get Started',
-                  onPressed: _onGetStarted,
-                  size: ButtonSize.large,
+          ),
+          // Ambient decorative shapes (subtle, animated by page index)
+          Positioned(
+            top: 60 + (_currentPage * 10),
+            left: -40 + (_currentPage * 8),
+            child: _AmbientBlob(color: AppColors.white.withOpacity(0.12), size: 160),
+          ),
+          Positioned(
+            bottom: 80 + (_currentPage * 6),
+            right: -30 + (_currentPage * 10),
+            child: _AmbientBlob(color: AppColors.white.withOpacity(0.10), size: 200),
+          ),
+          // Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Skip button
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppDimensions.spacing16),
+                    child: TextButton(
+                      onPressed: _onGetStarted,
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          color: AppColors.white,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                // PageView with slides
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: _slides.length,
+                    physics: const BouncingScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final slide = _slides[index];
+                      return CarouselSlide(
+                        title: slide['title'],
+                        description: slide['description'],
+                        icon: slide['icon'],
+                        iconColor: slide['color'],
+                        isActive: index == _currentPage,
+                      );
+                    },
+                  ),
+                ),
+                // Navigation dots
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppDimensions.spacing24,
+                  ),
+                  child: NavigationDots(
+                    currentIndex: _currentPage,
+                    totalDots: _slides.length,
+                    activeColor: AppColors.white,
+                    inactiveColor: AppColors.white.withOpacity(0.35),
+                  ),
+                ),
+                // Get Started button
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDimensions.spacing32,
+                    vertical: AppDimensions.spacing24,
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CustomButton(
+                      text: 'Get Started',
+                      onPressed: _onGetStarted,
+                      size: ButtonSize.large,
+                      variant: ButtonVariant.secondary,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Private ambient blob widget for subtle background decoration
+class _AmbientBlob extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _AmbientBlob({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color,
+            blurRadius: 60,
+            spreadRadius: 20,
+          ),
+        ],
       ),
     );
   }

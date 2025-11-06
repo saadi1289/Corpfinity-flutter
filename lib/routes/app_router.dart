@@ -3,10 +3,8 @@ import 'package:go_router/go_router.dart';
 
 // Placeholder screens - will be implemented in later tasks
 import 'package:corpfinity_employee_app/features/onboarding/screens/splash_screen.dart';
-import 'package:corpfinity_employee_app/features/onboarding/screens/welcome_carousel.dart';
 import 'package:corpfinity_employee_app/features/auth/screens/sign_up_screen.dart';
 import 'package:corpfinity_employee_app/features/auth/screens/sign_in_screen.dart';
-import 'package:corpfinity_employee_app/features/auth/screens/profile_setup_screen.dart';
 import 'package:corpfinity_employee_app/features/home/screens/home_screen.dart';
 import 'package:corpfinity_employee_app/features/activities/screens/wellness_pillar_screen.dart';
 import 'package:corpfinity_employee_app/features/activities/screens/activity_selection_screen.dart';
@@ -15,6 +13,7 @@ import 'package:corpfinity_employee_app/features/activities/screens/completion_s
 import 'package:corpfinity_employee_app/features/activities/screens/activity_library_screen.dart';
 import 'package:corpfinity_employee_app/features/progress/screens/progress_screen.dart';
 import 'package:corpfinity_employee_app/features/profile/screens/profile_screen.dart';
+import 'package:corpfinity_employee_app/features/challenges/screens/challenge_flow_screen.dart';
 
 /// Application router configuration using GoRouter
 /// 
@@ -31,11 +30,6 @@ class AppRouter {
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
       ),
-      GoRoute(
-        path: '/welcome',
-        name: 'welcome',
-        builder: (context, state) => const WelcomeCarousel(),
-      ),
 
       // Authentication Routes
       GoRoute(
@@ -48,17 +42,19 @@ class AppRouter {
         name: 'signin',
         builder: (context, state) => const SignInScreen(),
       ),
-      GoRoute(
-        path: '/auth/profile-setup',
-        name: 'profile-setup',
-        builder: (context, state) => const ProfileSetupScreen(),
-      ),
 
       // Home Route
       GoRoute(
         path: '/home',
         name: 'home',
         builder: (context, state) => const HomeScreen(),
+      ),
+
+      // Challenge Routes
+      GoRoute(
+        path: '/challenge/create',
+        name: 'challenge-create',
+        builder: (context, state) => const ChallengeFlowScreen(),
       ),
 
       // Wellness Pillar Route

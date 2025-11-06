@@ -3,7 +3,7 @@
 part of 'activity_step.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class ActivityStepAdapter extends TypeAdapter<ActivityStep> {

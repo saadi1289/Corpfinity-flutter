@@ -3,7 +3,7 @@
 part of 'completed_activity.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class CompletedActivityAdapter extends TypeAdapter<CompletedActivity> {

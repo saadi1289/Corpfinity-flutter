@@ -32,8 +32,24 @@ class NavigationDots extends StatelessWidget {
           width: index == currentIndex ? 24.0 : 8.0,
           height: 8.0,
           decoration: BoxDecoration(
-            color: index == currentIndex ? activeColor : inactiveColor,
             borderRadius: BorderRadius.circular(AppDimensions.spacing4),
+            color: index == currentIndex ? null : inactiveColor,
+            gradient: index == currentIndex
+                ? const LinearGradient(
+                    colors: [AppColors.white, AppColors.white],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  )
+                : null,
+            boxShadow: index == currentIndex
+                ? [
+                    BoxShadow(
+                      color: AppColors.white.withOpacity(0.25),
+                      blurRadius: 6,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : null,
           ),
         ),
       ),

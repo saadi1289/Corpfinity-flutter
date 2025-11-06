@@ -2,6 +2,7 @@
 /// 
 /// This file demonstrates how to use the mock data in your application
 /// during development and testing.
+library;
 
 import 'mock_data.dart';
 import 'models/enums.dart';

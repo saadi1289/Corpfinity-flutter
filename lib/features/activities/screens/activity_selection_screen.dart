@@ -40,7 +40,7 @@ class _ActivitySelectionScreenState extends State<ActivitySelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.white,
       appBar: _buildAppBar(context),
       body: _buildBody(context),
     );

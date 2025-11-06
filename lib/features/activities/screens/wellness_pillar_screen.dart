@@ -44,7 +44,7 @@ class _WellnessPillarScreenState extends State<WellnessPillarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -151,7 +151,7 @@ class _WellnessPillarScreenState extends State<WellnessPillarScreen> {
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: AppDimensions.gridCrossAxisSpacing,
                           mainAxisSpacing: AppDimensions.gridMainAxisSpacing,
-                          childAspectRatio: 0.90,
+                          childAspectRatio: 0.95,
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
@@ -168,9 +168,12 @@ class _WellnessPillarScreenState extends State<WellnessPillarScreen> {
                   ),
                 ),
 
-                // Bottom spacing
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: AppDimensions.spacing32),
+                // Bottom spacing with SafeArea padding
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: AppDimensions.spacing32 + 
+                            MediaQuery.of(context).padding.bottom,
+                  ),
                 ),
               ],
             );

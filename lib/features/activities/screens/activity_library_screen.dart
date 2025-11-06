@@ -50,7 +50,7 @@ class _ActivityLibraryScreenState extends State<ActivityLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.lightGray,
+      backgroundColor: AppColors.white,
       appBar: _buildAppBar(context),
       body: Column(
         children: [

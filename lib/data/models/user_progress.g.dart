@@ -3,7 +3,7 @@
 part of 'user_progress.dart';
 
 // **************************************************************************
-// TypeAdapter
+// TypeAdapterGenerator
 // **************************************************************************
 
 class UserProgressAdapter extends TypeAdapter<UserProgress> {
