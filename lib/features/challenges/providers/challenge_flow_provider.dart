@@ -86,6 +86,26 @@ class ChallengeFlowProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Fetch challenge from the database (simulated)
+  /// For now, we return a static challenge text for all selections.
+  /// In the future, replace this with an actual repository/service call.
+  Future<void> fetchChallengeFromDb() async {
+    if (_state.selectedEnergy == null ||
+        _state.selectedLocation == null ||
+        _state.selectedGoal == null) {
+      return;
+    }
+
+    // Simulate network latency
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    const staticChallenge =
+        'Take a 10-minute mindful break today.\n\n• Find a quiet spot (desk or outdoors).\n• Breathe slowly for 2 minutes.\n• Stretch your neck, shoulders, and back.\n• Write one thing you’re grateful for.';
+
+    _state = _state.copyWith(generatedChallenge: staticChallenge);
+    notifyListeners();
+  }
+
   /// Reset the flow to initial state
   void resetFlow() {
     _state = const ChallengeFlowState();

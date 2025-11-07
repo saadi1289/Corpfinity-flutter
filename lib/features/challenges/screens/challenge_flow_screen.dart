@@ -44,6 +44,10 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    // Ensure the initial step content is visible on first build.
+    // Without this, FadeTransition opacity may start at 0, causing a blank screen
+    // until a step change triggers an animation.
+    _transitionController.value = 1.0;
     
     // Reset flow when screen is opened
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -213,70 +217,96 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
           final screenWidth = constraints.maxWidth;
           final padding = ResponsiveHelper.getScreenPadding(context);
           final isSmallScreen = ResponsiveHelper.isSmallScreen(context);
-          
+
           // Calculate responsive card width: (screenWidth - padding) / 3
           final horizontalPadding = padding * 2;
           final spacingBetweenCards = 16.0 * 2; // 16px spacing between 3 cards = 2 gaps
           final cardWidth = (screenWidth - horizontalPadding - spacingBetweenCards) / 3;
-          
+
+          final fadeAnimation = _transitionController.drive(
+            CurveTween(curve: Curves.easeOut)).drive(Tween<double>(begin: 0.0, end: 1.0));
+          final slideAnimation = _transitionController.drive(
+            Tween<Offset>(begin: const Offset(0, 0.02), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut)));
+
           return Padding(
             padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                // Prompt text
-                Text(
-                  'How\'s your energy today?',
-                  style: AppTypography.headingLarge,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
-                // Energy level cards - horizontal scrollable layout
-                Expanded(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: cardWidth,
-                            child: _buildEnergyCard(
-                              provider,
-                              EnergyLevel.low,
-                              AppColors.energyLow,
-                            ),
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: SlideTransition(
+                position: slideAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Center the prompt and cards vertically within available space
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 800),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                              _buildCreativeHeader(
+                                title: "How's your energy today?",
+                                subtitle: "Tune into your vibe — we'll craft a mini‑challenge that matches your spark.",
+                                tags: const [
+                                  'slow & steady 🌙',
+                                  'balanced ☀️',
+                                  'fast & bold ⚡️',
+                                ],
+                                accentColor: AppColors.warmOrange,
+                              ),
+                              SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
+                              // Energy level cards - horizontal scrollable layout
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: cardWidth,
+                                      child: _buildEnergyCard(
+                                        provider,
+                                        EnergyLevel.low,
+                                        AppColors.energyLow,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                      width: cardWidth,
+                                      child: _buildEnergyCard(
+                                        provider,
+                                        EnergyLevel.medium,
+                                        AppColors.energyMedium,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                      width: cardWidth,
+                                      child: _buildEnergyCard(
+                                        provider,
+                                        EnergyLevel.high,
+                                        AppColors.energyHigh,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
-                          SizedBox(
-                            width: cardWidth,
-                            child: _buildEnergyCard(
-                              provider,
-                              EnergyLevel.medium,
-                              AppColors.energyMedium,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          SizedBox(
-                            width: cardWidth,
-                            child: _buildEnergyCard(
-                              provider,
-                              EnergyLevel.high,
-                              AppColors.energyHigh,
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                    // Step indicator
+                    Padding(
+                      padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                      child: _buildStepIndicator(provider),
+                    ),
+                  ],
                 ),
-                // Step indicator
-                Padding(
-                  padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                  child: _buildStepIndicator(provider),
-                ),
-              ],
+              ),
             ),
           );
         },
@@ -293,7 +323,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
     
     return RepaintBoundary(
       child: SizedBox(
-        height: 80,
+        height: 100,
         child: SelectionCard(
           label: EnergyLevelHelper.getLabel(energy),
           icon: EnergyLevelHelper.getIcon(energy),
@@ -309,6 +339,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
               }
             });
           },
+          iconSize: 36,
         ),
       ),
     );
@@ -322,42 +353,68 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
           final padding = ResponsiveHelper.getScreenPadding(context);
           final isSmallScreen = ResponsiveHelper.isSmallScreen(context);
           final isVerySmallScreen = ResponsiveHelper.isVerySmallScreen(context);
-          
+
+          final fadeAnimation = _transitionController.drive(
+            CurveTween(curve: Curves.easeOut)).drive(Tween<double>(begin: 0.0, end: 1.0));
+          final slideAnimation = _transitionController.drive(
+            Tween<Offset>(begin: const Offset(0, 0.02), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut)));
+
           return Padding(
             padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                // Prompt text
-                Text(
-                  'Where are you right now?',
-                  style: AppTypography.headingLarge,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
-                // Location cards - adaptive grid with proper constraints
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxWidth: 400,
-                          maxHeight: constraints.maxHeight,
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: SlideTransition(
+                position: slideAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Center the prompt and grid vertically
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: 420,
+                            maxHeight: constraints.maxHeight,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                              _buildCreativeHeader(
+                                title: 'Where are you right now?',
+                                subtitle: 'Your space shapes the flow — pick a scene that matches your moment.',
+                                tags: const [
+                                  'homey calm 🛋️',
+                                  'office focus 💼',
+                                  'gym grind 🏋️',
+                                  'outdoor refresh 🌿',
+                                ],
+                                accentColor: AppColors.calmBlue,
+                              ),
+                              SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
+                              // Location cards - adaptive grid with proper constraints
+                              SingleChildScrollView(
+                                child: Center(
+                                  child: isVerySmallScreen
+                                      ? _buildSingleColumnLocationGrid(provider)
+                                      : _buildTwoColumnLocationGrid(provider),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        child: isVerySmallScreen
-                            ? _buildSingleColumnLocationGrid(provider)
-                            : _buildTwoColumnLocationGrid(provider),
                       ),
                     ),
-                  ),
+                    // Step indicator
+                    Padding(
+                      padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                      child: _buildStepIndicator(provider),
+                    ),
+                  ],
                 ),
-                // Step indicator
-                Padding(
-                  padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                  child: _buildStepIndicator(provider),
-                ),
-              ],
+              ),
             ),
           );
         },
@@ -467,7 +524,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
     
     return RepaintBoundary(
       child: SizedBox(
-        height: 120,
+        height: 130,
         child: SelectionCard(
           label: LocationContextHelper.getLabel(location),
           icon: LocationContextHelper.getIcon(location),
@@ -483,7 +540,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
               }
             });
           },
-          iconSize: 48,
+          iconSize: 40,
         ),
       ),
     );
@@ -496,151 +553,249 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
           final padding = ResponsiveHelper.getScreenPadding(context);
           final isSmallScreen = ResponsiveHelper.isSmallScreen(context);
           final isVerySmallScreen = ResponsiveHelper.isVerySmallScreen(context);
-          
+
+          final fadeAnimation = _transitionController.drive(
+            CurveTween(curve: Curves.easeOut)).drive(Tween<double>(begin: 0.0, end: 1.0));
+          final slideAnimation = _transitionController.drive(
+            Tween<Offset>(begin: const Offset(0, 0.02), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut)));
+
           return Padding(
             padding: EdgeInsets.all(padding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                // Prompt text
-                Text(
-                  'What wellness area do you want to focus on?',
-                  style: AppTypography.headingLarge,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
-                // Wellness goal cards - adaptive grid
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 400),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            isVerySmallScreen
-                                ? _buildSingleColumnGoalGrid(provider)
-                                : _buildTwoColumnGoalGrid(provider),
-                            // Generate Challenge button (shown after selection)
-                            if (provider.selectedGoal != null &&
-                                provider.generatedChallenge == null) ...[
-                              SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing32),
-                              Semantics(
-                                label: 'Generate a personalized wellness challenge based on your selections',
-                                button: true,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    provider.generateChallenge();
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.calmBlue,
-                                    foregroundColor: AppColors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppDimensions.spacing16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.buttonBorderRadius,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Generate Challenge',
-                                    style: AppTypography.buttonLarge,
-                                  ),
-                                ),
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: SlideTransition(
+                position: slideAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Center the prompt and grid vertically
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 420),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(height: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                              _buildCreativeHeader(
+                                title: 'What wellness area do you want to focus on?',
+                                subtitle: 'Plant a seed — we’ll weave a personalized challenge just for you.',
+                                tags: const [
+                                  'de‑stress 🌊',
+                                  'energize ⚡️',
+                                  'sleep deeply 🌙',
+                                  'move strong 💪',
+                                  'nourish 🥗',
+                                  'connect 🤝',
+                                ],
+                                accentColor: AppColors.softPurple,
                               ),
-                            ],
-                            // Challenge display section (shown after generation)
-                            if (provider.generatedChallenge != null) ...[
                               SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
-                              // "Your Challenge" header
-                              Text(
-                                'Your Challenge',
-                                style: AppTypography.headingMedium,
-                                textAlign: TextAlign.center,
+                              // Wellness goal cards - adaptive grid
+                              SingleChildScrollView(
+                                child: Center(
+                                  child: isVerySmallScreen
+                                      ? _buildSingleColumnGoalGrid(provider)
+                                      : _buildTwoColumnGoalGrid(provider),
+                                ),
                               ),
-                              const SizedBox(height: AppDimensions.spacing24),
-                              // Challenge display card
-                              ChallengeDisplayCard(
-                                challengeText: provider.generatedChallenge!,
-                              ),
-                              const SizedBox(height: AppDimensions.spacing24),
-                              // Start Challenge button
-                              Semantics(
-                                label: 'Start this wellness challenge',
-                                button: true,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _handleStartChallenge(context, provider);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.calmBlue,
-                                    foregroundColor: AppColors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppDimensions.spacing16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.buttonBorderRadius,
+                              // Fetch Challenge button (shown after selection)
+                              if (provider.selectedGoal != null &&
+                                  provider.generatedChallenge == null) ...[
+                                SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing32),
+                                Semantics(
+                                  label: 'Fetch a personalized wellness challenge based on your selections',
+                                  button: true,
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () {
+                                        provider.fetchChallengeFromDb();
+                                      },
+                                      icon: const Icon(Icons.cloud_download_rounded),
+                                      label: Text(
+                                        'Fetch Challenge',
+                                        style: AppTypography.buttonLarge,
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppColors.calmBlue,
+                                        foregroundColor: AppColors.white,
+                                        elevation: 4,
+                                        shadowColor: Colors.black26,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: AppDimensions.spacing16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            AppDimensions.buttonBorderRadius,
+                                          ),
+                                        ),
+                                        minimumSize: const Size(double.infinity, AppDimensions.minTouchTarget),
                                       ),
                                     ),
                                   ),
-                                  child: Text(
-                                    'Start Challenge',
-                                    style: AppTypography.buttonLarge,
+                                ),
+                              ],
+                              // Challenge display section (shown after generation)
+                              if (provider.generatedChallenge != null) ...[
+                                SizedBox(height: isSmallScreen ? AppDimensions.spacing24 : AppDimensions.spacing40),
+                                // "Your Challenge" header
+                                Text(
+                                  'Your Challenge',
+                                  style: AppTypography.headingMedium,
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: AppDimensions.spacing24),
+                                // Challenge display card
+                                ChallengeDisplayCard(
+                                  challengeText: provider.generatedChallenge!,
+                                ),
+                                const SizedBox(height: AppDimensions.spacing24),
+                                // Start Challenge button
+                                Semantics(
+                                  label: 'Start this wellness challenge',
+                                  button: true,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _handleStartChallenge(context, provider);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.calmBlue,
+                                      foregroundColor: AppColors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: AppDimensions.spacing16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          AppDimensions.buttonBorderRadius,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Start Challenge',
+                                      style: AppTypography.buttonLarge,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: AppDimensions.spacing12),
-                              // Generate New button
-                              Semantics(
-                                label: 'Generate a new challenge with different suggestions',
-                                button: true,
-                                child: OutlinedButton(
-                                  onPressed: () {
-                                    provider.generateChallenge();
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: AppColors.calmBlue,
-                                    side: BorderSide(
-                                      color: AppColors.calmBlue,
-                                      width: 2,
+                                const SizedBox(height: AppDimensions.spacing12),
+                                // Fetch New button
+                                Semantics(
+                                  label: 'Fetch a new challenge with different suggestions',
+                                  button: true,
+                                  child: OutlinedButton(
+                                    onPressed: () {
+                                      provider.fetchChallengeFromDb();
+                                    },
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.calmBlue,
+                                      side: BorderSide(
+                                        color: AppColors.calmBlue,
+                                        width: 2,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: AppDimensions.spacing16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                          AppDimensions.buttonBorderRadius,
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppDimensions.spacing16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppDimensions.buttonBorderRadius,
+                                    child: Text(
+                                      'Fetch New',
+                                      style: AppTypography.buttonLarge.copyWith(
+                                        color: AppColors.calmBlue,
                                       ),
                                     ),
                                   ),
-                                  child: Text(
-                                    'Generate New',
-                                    style: AppTypography.buttonLarge.copyWith(
-                                      color: AppColors.calmBlue,
-                                    ),
-                                  ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    // Step indicator
+                    Padding(
+                      padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
+                      child: _buildStepIndicator(provider),
+                    ),
+                  ],
                 ),
-                // Step indicator
-                Padding(
-                  padding: EdgeInsets.only(bottom: isSmallScreen ? AppDimensions.spacing16 : AppDimensions.spacing24),
-                  child: _buildStepIndicator(provider),
-                ),
-              ],
+              ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  /// Creative step header with title, subtitle, and decorative tag pills
+  Widget _buildCreativeHeader({
+    required String title,
+    required String subtitle,
+    required List<String> tags,
+    required Color accentColor,
+  }) {
+    return Semantics(
+      label: title,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Title
+          Text(
+            title,
+            style: AppTypography.displaySmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppDimensions.spacing12),
+          // Subtitle
+          Text(
+            subtitle,
+            style: AppTypography.bodyMedium.copyWith(color: AppColors.mediumGray),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppDimensions.spacing16),
+          // Decorative tags
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 8,
+            children: tags.map((t) => _buildTagPill(t, accentColor)).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Small pill-shaped decorative tag with subtle accent
+  Widget _buildTagPill(String text, Color accentColor) {
+    return Semantics(
+      label: text,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDimensions.spacing12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.lightGray,
+          borderRadius: BorderRadius.circular(AppDimensions.radiusCircular),
+          border: Border.all(color: accentColor.withOpacity(0.35), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withOpacity(0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          text,
+          style: AppTypography.bodySmall.copyWith(color: AppColors.darkText),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
@@ -761,7 +916,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
     
     return RepaintBoundary(
       child: SizedBox(
-        height: 100,
+        height: 110,
         child: SelectionCard(
           label: WellnessGoalHelper.getLabel(goal),
           icon: WellnessGoalHelper.getIcon(goal),
@@ -771,7 +926,7 @@ class _ChallengeFlowScreenState extends State<ChallengeFlowScreen>
           onTap: () {
             provider.selectGoal(goal);
           },
-          iconSize: 40,
+          iconSize: 36,
         ),
       ),
     );

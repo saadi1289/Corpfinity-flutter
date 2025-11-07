@@ -61,24 +61,47 @@ class _ChallengeDisplayCardState extends State<ChallengeDisplayCard>
       child: FadeTransition(
         opacity: _fadeAnimation,
         child: Container(
-          constraints: const BoxConstraints(
-            minHeight: 150,
-          ),
+          constraints: const BoxConstraints(minHeight: 150),
           decoration: BoxDecoration(
-            color: AppColors.lightGray,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(AppDimensions.cardBorderRadius),
-            border: Border.all(
-              color: AppColors.calmBlue,
-              width: 1,
-            ),
+            border: Border.all(color: AppColors.calmBlue, width: 1.5),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 12,
+                offset: Offset(0, 6),
+              ),
+            ],
           ),
           padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Text(
-              widget.challengeText,
-              style: AppTypography.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.spa_rounded, color: AppColors.calmBlue),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Challenge Ready',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: AppColors.calmBlue,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDimensions.spacing16),
+              // Body
+              Text(
+                widget.challengeText,
+                style: AppTypography.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ),

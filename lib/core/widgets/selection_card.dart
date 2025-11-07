@@ -98,20 +98,34 @@ class _SelectionCardState extends State<SelectionCard>
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
                 decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: BorderRadius.circular(AppDimensions.cardBorderRadius),
+                  // Subtle gradient for elegant appearance
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: widget.isSelected
+                        ? [
+                            AppColors.white,
+                            (effectiveAccentColor).withOpacity(0.08),
+                          ]
+                        : [
+                            AppColors.white,
+                            AppColors.lightGray,
+                          ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusXLarge),
                   border: Border.all(
                     color: widget.isSelected
-                        ? effectiveAccentColor
-                        : AppColors.neutralGray,
-                    width: widget.isSelected ? 3 : 1,
+                        ? effectiveAccentColor.withOpacity(0.7)
+                        : AppColors.mediumGray.withOpacity(0.4),
+                    width: widget.isSelected ? 2.5 : 1.0,
                   ),
                   boxShadow: widget.isSelected
                       ? [
                           BoxShadow(
-                            color: effectiveAccentColor.withOpacity(0.3),
-                            blurRadius: 12,
-                            spreadRadius: 2,
+                            color: effectiveAccentColor.withOpacity(0.20),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 6),
                           ),
                         ]
                       : _defaultShadow,
@@ -121,17 +135,23 @@ class _SelectionCardState extends State<SelectionCard>
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildIcon(effectiveAccentColor),
+                    Flexible(
+                      child: _buildIcon(effectiveAccentColor),
+                    ),
                     const SizedBox(height: AppDimensions.spacing8),
-                    Text(
-                      widget.label,
-                      style: AppTypography.bodyLarge.copyWith(
-                        color: AppColors.darkText,
-                        fontWeight: widget.isSelected
-                            ? FontWeight.w600
-                            : FontWeight.normal,
+                    Flexible(
+                      child: Text(
+                        widget.label,
+                        style: AppTypography.bodyLarge.copyWith(
+                          color: AppColors.darkText,
+                          fontWeight: widget.isSelected
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
